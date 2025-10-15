@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résultats du Calculateur Actuariel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .insurance-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        .badge-vie {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .badge-non-vie {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .badge-obligatoire {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .input-summary {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .input-summary h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-item .label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .results-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .result-main {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .result-main h2 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .premium-amount {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .result-details {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .detail-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .detail-table tr.total-row {
+            background-color: #f8f9fa;
+        }
+
+        .detail-table .total-label {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .detail-table .total-value {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #c0392b;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        .chart-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .chart-container canvas {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .premium-amount {
+                font-size: 2.2rem;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('index') }}" class="back-link">&larr; Retour au calculateur</a>
+
+        <div class="results-header">
+            <h1>Résultats de votre simulation
+                <span class="insurance-badge
+                    {% if insurance_branch == 'vie' %}badge-vie
+                    {% elif insurance_branch == 'non_vie' %}badge-non-vie
+                    {% else %}badge-obligatoire{% endif %}">
+                    {% if insurance_branch == 'vie' %}Assurance Vie
+                    {% elif insurance_branch == 'non_vie' %}Assurance Non-Vie
+                    {% else %}Assurance Obligatoire{% endif %}
+                </span>
+            </h1>
+            <p>Détail du calcul de votre prime d'assurance</p>
+        </div>
+
+        <div class="input-summary">
+            <h3>Vos informations</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <span class="label">Âge:</span>
+                    <span id="summary-age">{{ age }} ans</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Genre:</span>
+                    <span id="summary-gender">
+                        {% if gender == 'male' %}Homme{% else %}Femme{% endif %}
+                    </span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Type de couverture:</span>
+                    <span id="summary-coverage-type">
+                        {% if insurance_branch == 'vie' %}
+                            {% if coverage_type == 'life' %}Assurance Vie Classique
+                            {% elif coverage_type == 'health' %}Assurance Santé
+                            {% else %}Rente{% endif %}
+                        {% elif insurance_branch == 'non_vie' %}
+                            {% if coverage_type == 'auto' %}Automobile
+                            {% elif coverage_type == 'home' %}Habitation
+                            {% elif coverage_type == 'accident' %}Accident
+                            {% elif coverage_type == 'liability' %}Responsabilité Civile
+                            {% else %}Voyage{% endif %}
+                        {% else %}
+                            {% if coverage_type == 'auto_liability' %}Responsabilité Civile Auto
+                            {% elif coverage_type == 'health' %}Assurance Maladie
+                            {% elif coverage_type == 'professional' %}Responsabilité Professionnelle
+                            {% else %}Assurance Habitation{% endif %}
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Montant de couverture:</span>
+                    <span id="summary-coverage-amount">{{ "{:,.0f}".format(coverage_amount|float) }} €</span>
+                </div>
+                {% if insurance_branch == 'vie' %}
+                <div class="summary-item">
+                    <span class="label">Durée:</span>
+                    <span id="summary-term">{{ term }} ans</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Statut tabagique:</span>
+                    <span id="summary-smoking">
+                        {% if smoking_status == 'True' %}Fumeur{% else %}Non-fumeur{% endif %}
+                    </span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Conditions de santé:</span>
+                    <span id="summary-health">
+                        {% if health_conditions %}
+                            {% set conditions_map = {
+                                'hypertension': 'Hypertension',
+                                'diabetes': 'Diabète',
+                                'heart_disease': 'Maladie cardiaque',
+                                'cancer': 'Cancer',
+                                'asthma': 'Asthme'
+                            } %}
+                            {% for condition in health_conditions.split(',') %}
+                                {% if condition %}
+                                    {{ conditions_map.get(condition, condition) }}{% if not loop.last %}, {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            Aucune
+                        {% endif %}
+                    </span>
+                </div>
+                {% elif insurance_branch == 'non_vie' %}
+                <div class="summary-item">
+                    <span class="label">Facteurs de risque:</span>
+                    <span id="summary-risks">
+                        {% if risk_factors %}
+                            {% set risk_map = {
+                                'accident': 'Accident',
+                                'theft': 'Vol',
+                                'natural_disaster': 'Catastrophe naturelle',
+                                'liability': 'Responsabilité',
+                                'professional': 'Professionnel'
+                            } %}
+                            {% for risk in risk_factors.split(',') %}
+                                {% if risk %}
+                                    {{ risk_map.get(risk, risk) }}{% if not loop.last %}, {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            Aucun
+                        {% endif %}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="results-content">
+            <div class="result-main">
+                <h2>Prime annuelle estimée</h2>
+                <div class="premium-amount" id="result-premium">{{ "{:,.2f}".format(premium|float) }} €</div>
+                <p>Montant à payer chaque année pour votre couverture</p>
+            </div>
+
+            <div class="result-details">
+                <h3>Détail de la composition de votre prime</h3>
+                <table class="detail-table">
+                    <tr>
+                        <td>Prime de base</td>
+                        <td id="detail-base">{{ "{:,.2f}".format(base_premium|float) }} €</td>
+                    </tr>
+                    {% if surcharge and surcharge|float > 0 %}
+                    <tr>
+                        <td>Majorations</td>
+                        <td id="detail-surcharge">{{ "{:,.2f}".format(surcharge|float) }} €</td>
+                    </tr>
+                    {% endif %}
+                    <tr class="total-row">
+                        <td class="total-label">Prime annuelle totale</td>
+                        <td class="total-value" id="detail-total">{{ "{:,.2f}".format(premium|float) }} €</td>
+                    </tr>
+                </table>
+
+                <!-- Graphique Chart.js -->
+                <div class="chart-container">
+                    <h3 style="margin-top: 30px;">Visualisation de la prime</h3>
+                    <canvas id="premiumChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="fas fa-calculator"></i> Nouvelle simulation
+            </a>
+
+            <a href="{{ url_for('export_pdf', age=age, gender=gender, insuranceBranch=insurance_branch,
+                               coverageType=coverage_type, coverageAmount=coverage_amount,
+                               term=term, premium=premium, basePremium=base_premium,
+                               surcharge=surcharge) }}"
+               class="btn btn-secondary">
+                <i class="fas fa-download"></i> Exporter en PDF
+            </a>
+
+            {% if session.get('user_id') %}
+            <a href="{{ url_for('history') }}" class="btn btn-success">
+                <i class="fas fa-history"></i> Voir l'historique
+            </a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-success">
+                <i class="fas fa-user"></i> Se connecter pour sauvegarder
+            </a>
+            {% endif %}
+        </div>
+
+        {% if not session.get('user_id') %}
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
+            <h3>💡 Envie de sauvegarder vos calculs ?</h3>
+            <p>Créez un compte gratuit pour accéder à l'historique de toutes vos simulations.</p>
+            <a href="{{ url_for('register') }}" class="btn btn-success" style="margin-top: 10px;">
+                <i class="fas fa-user-plus"></i> Créer un compte
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Graphique avec Chart.js
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('premiumChart').getContext('2d');
+            const basePremium = {{ base_premium|float }};
+            const surcharge = {{ surcharge|float }};
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Prime de base', 'Majorations'],
+                    datasets: [{
+                        label: 'Montant (€)',
+                        data: [basePremium, surcharge],
+                        backgroundColor: ['#3498db', '#e74c3c'],
+                        borderColor: ['#2980b9', '#c0392b'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Décomposition de la prime',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Montant (€)',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + ' €';
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Composantes de la prime',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+# Environnements virtuels
+venv/
+env/
+.venv/
+
+# Fichiers de base de données
+*.db
+*.sqlite3
+instance/
+
+# Fichiers Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environnements
+.Python
+.env
+.venv
+
+# PyCharm
+.idea/
+*.iml
+
+# Système
+.DS_Store
+Thumbs.db

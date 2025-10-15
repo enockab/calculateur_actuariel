@@ -1,0 +1,1151 @@
+###index.html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur Actuariel - Simulation de Primes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --dark-text: #2c3e50;
+            --success-color: #27ae60;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        /* Navigation Bar */
+        .navbar-custom {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a2530 100%);
+            padding: 15px 30px;
+            border-bottom: 3px solid var(--secondary-color);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+            margin: 0 10px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .navbar-nav .nav-link i {
+            margin-right: 5px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .header-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .calculator-container {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: var(--light-bg);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .form-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .branch-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .branch-option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .branch-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .branch-option:hover::before {
+            left: 100%;
+        }
+
+        .branch-option:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .branch-option.active {
+            border-color: var(--secondary-color);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .branch-option i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .branch-option h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .checkbox-group,
+        .health-conditions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-group label,
+        .health-conditions label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .checkbox-group label:hover,
+        .health-conditions label:hover {
+            background-color: #f0f0f0;
+        }
+
+        .checkbox-group input[type="checkbox"],
+        .health-conditions input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .info-note {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            border-radius: 5px;
+            font-style: italic;
+        }
+
+        #calculateBtn {
+            background: linear-gradient(135deg, var(--success-color) 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 30px auto 0;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        #calculateBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        #calculateBtn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-card h3 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .prime-amount {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .result-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-save {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .btn-pdf {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-new {
+            background: transparent;
+            border: 2px solid white !important;
+            color: white;
+        }
+
+        .btn-save:hover, .btn-pdf:hover, .btn-new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        footer {
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .branch-section {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .branch-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .prime-amount {
+                font-size: 2.5rem;
+            }
+
+            .navbar-nav {
+                text-align: center;
+                margin-top: 10px;
+            }
+
+            .navbar-nav .nav-link {
+                margin: 5px 0;
+                display: block;
+            }
+
+            .result-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .result-actions button {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Barre de navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-calculator"></i> Calculateur Actuariel
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon" style="color: white;">☰</span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home"></i> Accueil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('history') }}">
+                            <i class="fas fa-history"></i> Historique
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="generateCurrentPDF()">
+                            <i class="fas fa-file-pdf"></i> Générer PDF
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt"></i> Déconnexion
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link" style="color: #ffd700 !important;">
+                            <i class="fas fa-user"></i> {{ current_user.username }}
+                        </span>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">
+                            <i class="fas fa-sign-in-alt"></i> Connexion
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('register') }}">
+                            <i class="fas fa-user-plus"></i> Inscription
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header>
+            <i class="fas fa-calculator header-icon"></i>
+            <h1>Calculateur Actuariel de Primes d'Assurance</h1>
+            <p>Simulez rapidement les primes pour tous types d'assurance</p>
+        </header>
+
+        <main>
+            <div class="calculator-container">
+                <form id="premiumForm">
+                    <!-- Champ caché pour la branche d'assurance -->
+                    <input type="hidden" id="insuranceBranch" name="insuranceBranch" value="vie">
+
+                    <div class="form-section">
+                        <h2><i class="fas fa-user"></i> Informations personnelles</h2>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="age">Âge:</label>
+                                <input type="number" id="age" name="age" min="18" max="120" value="40" required>
+                                <small class="form-text text-muted">Entre 18 et 120 ans</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="gender">Genre:</label>
+                                <select id="gender" name="gender" required>
+                                    <option value="male">Homme</option>
+                                    <option value="female">Femme</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2><i class="fas fa-building"></i> Type d'assurance</h2>
+
+                        <div class="branch-selector">
+                            <div class="branch-option active" data-branch="vie">
+                                <i class="fas fa-heart"></i>
+                                <h3>Assurance Vie</h3>
+                                <p>Décès, capital, rente</p>
+                            </div>
+                            <div class="branch-option" data-branch="non_vie">
+                                <i class="fas fa-home"></i>
+                                <h3>Assurance Non-Vie</h3>
+                                <p>Auto, habitation, accident</p>
+                            </div>
+                            <div class="branch-option" data-branch="obligatoire">
+                                <i class="fas fa-balance-scale"></i>
+                                <h3>Assurance Obligatoire</h3>
+                                <p>RC Auto, santé obligatoire</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Assurance Vie -->
+                    <div id="vie-section" class="branch-section">
+                        <div class="form-section">
+                            <h2><i class="fas fa-heart"></i> Paramètres Assurance Vie</h2>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Type de couverture:</label>
+                                    <select name="vie_coverageType">
+                                        <option value="deces">Décès temporaire</option>
+                                        <option value="vie_entiere">Vie entière</option>
+                                        <option value="rente">Rente viagère</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Capital assuré (UM):</label>
+                                    <input type="number" name="vie_coverageAmount" min="1000" step="1000" value="100000" required>
+                                    <small class="form-text text-muted">Montant minimum: 1 000 UM</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Durée du contrat (années):</label>
+                                    <input type="number" name="vie_term" min="5" max="40" value="20" required>
+                                    <small class="form-text text-muted">Entre 5 et 40 ans</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Taux d'intérêt technique (%):</label>
+                                    <input type="number" name="vie_interestRate" min="0.1" max="5.0" step="0.1" value="1.5" required>
+                                    <small class="form-text text-muted">Taux réglementé: 0.1% à 5.0%</small>
+                                </div>
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Facteurs de risque:</label>
+                                    <div class="checkbox-group">
+                                        <label>
+                                            <input type="checkbox" name="vie_smokingStatus" value="true">
+                                            Fumeur (+80%)
+                                        </label>
+                                        <label>
+                                            <input type="checkbox" name="vie_highRisk" value="true">
+                                            Profession à risque (+40%)
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Antécédents médicaux:</label>
+                                    <div class="health-conditions">
+                                        <label><input type="checkbox" name="vie_hypertension" value="true"> Hypertension (+30%)</label>
+                                        <label><input type="checkbox" name="vie_diabetes" value="true"> Diabète (+50%)</label>
+                                        <label><input type="checkbox" name="vie_heart_disease" value="true"> Maladie cardiaque (+100%)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Assurance Non-Vie -->
+                    <div id="non_vie-section" class="branch-section" style="display:none">
+                        <div class="form-section">
+                            <h2><i class="fas fa-home"></i> Paramètres Assurance Non-Vie</h2>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Type de couverture:</label>
+                                    <select name="nonvie_coverageType">
+                                        <option value="auto">Automobile</option>
+                                        <option value="home">Habitation</option>
+                                        <option value="accident">Accident</option>
+                                        <option value="liability">Responsabilité Civile</option>
+                                        <option value="travel">Voyage</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Valeur assurée (UM):</label>
+                                    <input type="number" name="nonvie_coverageAmount" min="1000" step="1000" value="50000" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Niveau de risque:</label>
+                                    <select name="nonvie_riskLevel">
+                                        <option value="0.5">Faible (-50%)</option>
+                                        <option value="1.0" selected>Moyen</option>
+                                        <option value="1.5">Élevé (+50%)</option>
+                                        <option value="2.0">Très élevé (+100%)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Niveau de garanties:</label>
+                                    <select name="nonvie_guaranteeLevel">
+                                        <option value="0.8">Basique (-20%)</option>
+                                        <option value="1.0" selected>Standard</option>
+                                        <option value="1.2">Étendue (+20%)</option>
+                                        <option value="1.5">Premium (+50%)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Garanties supplémentaires:</label>
+                                <div class="health-conditions">
+                                    <label><input type="checkbox" name="nonvie_accident" value="true"> Accident (+20%)</label>
+                                    <label><input type="checkbox" name="nonvie_theft" value="true"> Vol (+15%)</label>
+                                    <label><input type="checkbox" name="nonvie_natural_disaster" value="true"> Catastrophe naturelle (+25%)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Assurance Obligatoire -->
+                    <div id="obligatoire-section" class="branch-section" style="display:none">
+                        <div class="form-section">
+                            <h2><i class="fas fa-balance-scale"></i> Paramètres Assurance Obligatoire</h2>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Type de couverture:</label>
+                                    <select name="obligatoire_coverageType">
+                                        <option value="auto_liability">Responsabilité Civile Auto</option>
+                                        <option value="health">Assurance Maladie</option>
+                                        <option value="professional">Responsabilité Professionnelle</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Base de calcul (UM):</label>
+                                    <input type="number" name="obligatoire_coverageAmount" min="1000" step="1000" value="20000" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Catégorie de risque:</label>
+                                    <select name="obligatoire_riskCategory">
+                                        <option value="0.8">Catégorie 1 (Faible risque)</option>
+                                        <option value="1.0" selected>Catégorie 2 (Risque moyen)</option>
+                                        <option value="1.3">Catégorie 3 (Risque élevé)</option>
+                                        <option value="1.7">Catégorie 4 (Risque très élevé)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Région:</label>
+                                    <select name="obligatoire_region">
+                                        <option value="0.9">Zone rurale (-10%)</option>
+                                        <option value="1.0" selected>Zone urbaine</option>
+                                        <option value="1.2">Zone à risque (+20%)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <p class="info-note">
+                                    <i class="fas fa-info-circle"></i>
+                                    Les assurances obligatoires suivent des tarifs réglementés. La base de calcul correspond à la valeur du véhicule, votre revenu annuel, ou votre chiffre d'affaires selon le type d'assurance.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <button type="button" id="calculateBtn" onclick="calculatePremium()">
+                            <i class="fas fa-calculator"></i> Calculer la prime
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Section des résultats -->
+                <div id="result-section" class="result-card">
+                    <h3>Résultat du Calcul</h3>
+                    <div class="prime-amount" id="prime-result">0.00 UM</div>
+                    <p id="calculation-details"></p>
+                    <div class="result-actions">
+                        <button class="btn-save" onclick="saveCalculation()">
+                            <i class="fas fa-save"></i> Sauvegarder
+                        </button>
+                        <button class="btn-pdf" onclick="generatePDF()">
+                            <i class="fas fa-file-pdf"></i> Générer PDF
+                        </button>
+                        <button class="btn-new" onclick="resetCalculator()">
+                            <i class="fas fa-redo"></i> Nouveau calcul
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Calculateur actuariel développé avec Python Flask Par Enock NIHORIMBERE - &copy; 2025</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ===== TABLE DE MORTALITÉ THP-00/02 (Simplifiée) =====
+        const tableMortalite = {
+            18: 0.0005, 19: 0.0005, 20: 0.0006, 21: 0.0006, 22: 0.0007, 23: 0.0007, 24: 0.0008,
+            25: 0.0008, 26: 0.0009, 27: 0.0009, 28: 0.0010, 29: 0.0010, 30: 0.0011,
+            31: 0.0012, 32: 0.0013, 33: 0.0014, 34: 0.0015, 35: 0.0016,
+            36: 0.0017, 37: 0.0019, 38: 0.0020, 39: 0.0022, 40: 0.0024,
+            41: 0.0026, 42: 0.0029, 43: 0.0032, 44: 0.0035, 45: 0.0039,
+            46: 0.0043, 47: 0.0048, 48: 0.0053, 49: 0.0059, 50: 0.0066,
+            51: 0.0074, 52: 0.0083, 53: 0.0093, 54: 0.0104, 55: 0.0117,
+            56: 0.0132, 57: 0.0148, 58: 0.0166, 59: 0.0187, 60: 0.0211,
+            61: 0.0238, 62: 0.0268, 63: 0.0302, 64: 0.0340, 65: 0.0383,
+            66: 0.0431, 67: 0.0485, 68: 0.0546, 69: 0.0614, 70: 0.0690,
+            71: 0.0775, 72: 0.0869, 73: 0.0973, 74: 0.1088, 75: 0.1214,
+            76: 0.1352, 77: 0.1502, 78: 0.1664, 79: 0.1838, 80: 0.2024
+        };
+
+        // Variables globales
+        let currentResult = null;
+        let currentCalculationId = null;
+
+        // ===== FONCTIONS UTILITAIRES =====
+        function getTauxMortalite(age) {
+            const ageArrondi = Math.max(18, Math.min(80, Math.floor(age)));
+            return tableMortalite[ageArrondi] || 0.05;
+        }
+
+        function getTauxMortaliteEtendu(age) {
+            if (age <= 80) {
+                return getTauxMortalite(age);
+            } else {
+                // Taux de mortalité progressif au-delà de 80 ans
+                return Math.min(0.25, 0.05 + (age - 80) * 0.025);
+            }
+        }
+
+        function getSafeNumber(value, defaultValue = 0) {
+            if (value === undefined || value === null || value === '') return defaultValue;
+            const num = parseFloat(value);
+            return isNaN(num) ? defaultValue : num;
+        }
+
+        function getSafeBoolean(value) {
+            return value === true || value === 'true' || value === '1';
+        }
+
+        // ===== INITIALISATION =====
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Calculateur actuariel initialisé');
+
+            const branchOptions = document.querySelectorAll('.branch-option');
+            const branchSections = document.querySelectorAll('.branch-section');
+            const insuranceBranchField = document.getElementById('insuranceBranch');
+
+            function selectBranch(branch) {
+                // Masquer toutes les sections
+                branchSections.forEach(section => {
+                    section.style.display = 'none';
+                });
+
+                // Afficher la section sélectionnée
+                const selectedSection = document.getElementById(branch + '-section');
+                if (selectedSection) {
+                    selectedSection.style.display = 'block';
+                }
+
+                // Mettre à jour le champ caché
+                insuranceBranchField.value = branch;
+
+                // Mettre à jour l'apparence des options
+                branchOptions.forEach(option => {
+                    if (option.getAttribute('data-branch') === branch) {
+                        option.classList.add('active');
+                    } else {
+                        option.classList.remove('active');
+                    }
+                });
+
+                // Cacher les résultats
+                document.getElementById('result-section').style.display = 'none';
+                currentResult = null;
+            }
+
+            // Ajouter les écouteurs d'événements aux options de branche
+            branchOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const branch = this.getAttribute('data-branch');
+                    selectBranch(branch);
+                });
+            });
+
+            // Initialisation
+            selectBranch('vie');
+        });
+
+        // ===== EXTRACTION DES PARAMÈTRES =====
+        // ===== EXTRACTION CORRECTE DES PARAMÈTRES =====
+        // ===== EXTRACTION CORRECTE DES PARAMÈTRES =====
+        function extractAllParameters(branch) {
+            const parameters = {};
+
+            // Paramètres communs
+            parameters.age = document.getElementById('age').value;
+            parameters.gender = document.getElementById('gender').value;
+
+            if (branch === 'non_vie') {
+                // Paramètres non-vie
+                parameters.coverageType = document.querySelector('select[name="nonvie_coverageType"]').value;
+                parameters.coverageAmount = document.querySelector('input[name="nonvie_coverageAmount"]').value;
+                parameters.riskLevel = document.querySelector('select[name="nonvie_riskLevel"]').value;
+                parameters.guaranteeLevel = document.querySelector('select[name="nonvie_guaranteeLevel"]').value;
+                parameters.accident = document.querySelector('input[name="nonvie_accident"]').checked;
+                parameters.theft = document.querySelector('input[name="nonvie_theft"]').checked;
+                parameters.natural_disaster = document.querySelector('input[name="nonvie_natural_disaster"]').checked;
+            }
+            else if (branch === 'vie') {
+                // Paramètres vie
+                parameters.coverageType = document.querySelector('select[name="vie_coverageType"]').value;
+                parameters.coverageAmount = document.querySelector('input[name="vie_coverageAmount"]').value;
+                parameters.term = document.querySelector('input[name="vie_term"]').value;
+                parameters.interestRate = document.querySelector('input[name="vie_interestRate"]').value;
+                parameters.smokingStatus = document.querySelector('input[name="vie_smokingStatus"]').checked;
+                parameters.highRisk = document.querySelector('input[name="vie_highRisk"]').checked;
+                parameters.hypertension = document.querySelector('input[name="vie_hypertension"]').checked;
+                parameters.diabetes = document.querySelector('input[name="vie_diabetes"]').checked;
+                parameters.heart_disease = document.querySelector('input[name="vie_heart_disease"]').checked;
+            }
+            else if (branch === 'obligatoire') {
+                // PARAMÈTRES OBLIGATOIRES - CORRECTION
+                parameters.coverageType = document.querySelector('select[name="obligatoire_coverageType"]').value;
+                parameters.coverageAmount = document.querySelector('input[name="obligatoire_coverageAmount"]').value;
+                parameters.riskCategory = document.querySelector('select[name="obligatoire_riskCategory"]').value;
+                parameters.region = document.querySelector('select[name="obligatoire_region"]').value;
+
+                console.log('📋 Paramètres obligatoires extraits:', parameters);
+            }
+
+            return parameters;
+        }
+
+        // ===== CALCULS ACTUARIELS =====
+        function calculatePremium() {
+            const branch = document.getElementById('insuranceBranch').value;
+            const parameters = extractAllParameters(branch);
+
+            console.log(`Calcul pour branche: ${branch}`, parameters);
+
+            let prime = 0;
+
+            try {
+                switch(branch) {
+                    case 'vie':
+                        prime = calculateLifeInsurance(parameters);
+                        break;
+                    case 'non_vie':
+                        prime = calculateNonLifeInsurance(parameters);
+                        break;
+                    case 'obligatoire':
+                        prime = calculateMandatoryInsurance(parameters);
+                        break;
+                }
+
+                console.log(`Prime calculée: ${prime}`);
+                showResult(prime, branch, parameters);
+
+            } catch (error) {
+                alert('Erreur lors du calcul: ' + error.message);
+                console.error('Erreur calcul:', error);
+            }
+        }
+
+        // ===== CALCULS ASSURANCE VIE CORRIGÉS =====
+        function calculateLifeInsurance(params) {
+            const capital = getSafeNumber(params.coverageAmount, 100000);
+            const age = getSafeNumber(params.age, 40);
+            const duree = getSafeNumber(params.term, 20);
+            const taux = getSafeNumber(params.interestRate, 1.5);
+            const typeContrat = params.coverageType || 'deces';
+
+            // Validation
+            if (capital < 1000) throw new Error('Le capital doit être d\'au moins 1 000 UM');
+            if (age < 18 || age > 80) throw new Error('Âge doit être entre 18 et 80 ans');
+            if ((typeContrat === 'deces' || typeContrat === 'rente') && (duree < 5 || duree > 40)) {
+                throw new Error('Durée doit être entre 5 et 40 ans');
+            }
+
+            // Facteurs de risque
+            let facteurRisque = 1.0;
+
+            if (getSafeBoolean(params.smokingStatus)) facteurRisque *= 1.8;
+            if (getSafeBoolean(params.highRisk)) facteurRisque *= 1.4;
+            if (getSafeBoolean(params.hypertension)) facteurRisque *= 1.3;
+            if (getSafeBoolean(params.diabetes)) facteurRisque *= 1.5;
+            if (getSafeBoolean(params.heart_disease)) facteurRisque *= 2.0;
+
+            console.log(`📊 Calcul ${typeContrat} - Capital: ${capital}, Âge: ${age}, Durée: ${duree}, Facteur risque: ${facteurRisque}`);
+
+            // CALCULS DIFFÉRENTS POUR CHAQUE TYPE
+            let primeAnnuelle = 0;
+
+            if (typeContrat === 'deces') {
+                primeAnnuelle = calculatePrimeDecesTemporaire(capital, age, duree, taux, facteurRisque);
+            } else if (typeContrat === 'vie_entiere') {
+                primeAnnuelle = calculatePrimeVieEntiere(capital, age, taux, facteurRisque);
+            } else if (typeContrat === 'rente') {
+                primeAnnuelle = calculatePrimeRenteViagere(capital, age, taux, facteurRisque);
+            }
+
+            const primeMensuelle = primeAnnuelle / 12;
+            const resultat = Math.max(5, Math.round(primeMensuelle * 100) / 100);
+
+            console.log(`💰 Résultat ${typeContrat}: ${resultat} UM/mois`);
+            return resultat;
+        }
+
+        // DÉCÈS TEMPORAIRE CORRIGÉ
+        function calculatePrimeDecesTemporaire(capital, age, duree, taux, facteurRisque) {
+            let prime = 0;
+            const tauxInteret = taux / 100;
+
+            for (let annee = 1; annee <= duree; annee++) {
+                const ageActuel = age + annee - 1;
+                const tauxMortalite = getTauxMortaliteEtendu(ageActuel);
+                const facteurActualisation = Math.pow(1 + tauxInteret, -annee);
+
+                prime += capital * tauxMortalite * facteurActualisation;
+            }
+
+            return prime * facteurRisque * 1.2; // 20% de chargement
+        }
+
+        // VIE ENTIÈRE - FORMULE CORRECTE
+        function calculatePrimeVieEntiere(capital, age, taux, facteurRisque) {
+            let prime = 0;
+            const tauxInteret = taux / 100;
+            const ageLimite = 120;
+
+            for (let annee = 1; annee <= (ageLimite - age); annee++) {
+                const ageActuel = age + annee - 1;
+
+                // Probabilité de mourir précisément à cet âge
+                let probabiliteDecesPrecis = 1.0;
+                for (let a = age; a < ageActuel; a++) {
+                    probabiliteDecesPrecis *= (1 - getTauxMortaliteEtendu(a));
+                }
+                probabiliteDecesPrecis *= getTauxMortaliteEtendu(ageActuel);
+
+                const facteurActualisation = Math.pow(1 + tauxInteret, -annee);
+                prime += capital * probabiliteDecesPrecis * facteurActualisation;
+            }
+
+            return prime * facteurRisque * 1.15; // 15% de chargement
+        }
+
+        // RENTE VIAGÈRE CORRIGÉE
+        function calculatePrimeRenteViagere(capital, age, taux, facteurRisque) {
+            const tauxInteret = taux / 100;
+            let valeurActuelleRente = 0;
+            const ageLimite = 120;
+
+            // La rente verse un revenu ANNUEL jusqu'au décès (8% du capital)
+            const renteAnnuelle = capital * 0.08;
+
+            for (let annee = 1; annee <= (ageLimite - age); annee++) {
+                const ageActuel = age + annee - 1;
+
+                // Probabilité d'être en vie à l'âge actuel
+                let probabiliteSurvie = 1.0;
+                for (let a = age; a < ageActuel; a++) {
+                    probabiliteSurvie *= (1 - getTauxMortaliteEtendu(a));
+                }
+
+                const facteurActualisation = Math.pow(1 + tauxInteret, -annee);
+                valeurActuelleRente += renteAnnuelle * probabiliteSurvie * facteurActualisation;
+            }
+
+            // Pour une rente, la prime est la valeur actuelle de tous les flux futurs
+            return valeurActuelleRente * facteurRisque * 1.15; // +15% de chargement
+        }
+
+        function calculateNonLifeInsurance(params) {
+            const valeur = getSafeNumber(params.coverageAmount, 50000);
+            const risque = getSafeNumber(params.riskLevel, 1.0);
+            const garanties = getSafeNumber(params.guaranteeLevel, 1.0);
+
+            if (valeur < 1000) throw new Error('La valeur assurée doit être d\'au moins 1 000 UM');
+
+            // Taux de base selon le type
+            let tauxBase = 0.015;
+            const typeCouverture = params.coverageType;
+            if (typeCouverture === 'auto') tauxBase = 0.02;
+            if (typeCouverture === 'home') tauxBase = 0.012;
+            if (typeCouverture === 'accident') tauxBase = 0.008;
+
+            // Facteurs supplémentaires - APPLIQUER TOUS LES FACTEURS
+            let facteurTotal = 1.0;
+
+            // Facteur risque
+            facteurTotal *= risque;
+
+            // Facteur garanties
+            facteurTotal *= garanties;
+
+            // Garanties supplémentaires
+            if (getSafeBoolean(params.accident)) facteurTotal *= 1.2;
+            if (getSafeBoolean(params.theft)) facteurTotal *= 1.15;
+            if (getSafeBoolean(params.natural_disaster)) facteurTotal *= 1.25;
+
+            console.log(`🔍 Non-Vie - Valeur: ${valeur}, Taux: ${tauxBase}, Facteur total: ${facteurTotal}`);
+
+            const prime = valeur * tauxBase * facteurTotal;
+            return Math.round(prime * 100) / 100;
+        }
+
+        function calculateMandatoryInsurance(params) {
+            const base = getSafeNumber(params.coverageAmount, 20000);
+            const categorie = getSafeNumber(params.riskCategory, 1.0);
+            const region = getSafeNumber(params.region, 1.0);
+
+            if (base < 1000) throw new Error('La base de calcul doit être d\'au moins 1 000 UM');
+
+            // Taux réglementaire selon le type
+            let tauxReglementaire = 0.02;
+            const typeCouverture = params.coverageType;
+            if (typeCouverture === 'auto_liability') tauxReglementaire = 0.015;
+            if (typeCouverture === 'health') tauxReglementaire = 0.025;
+            if (typeCouverture === 'professional') tauxReglementaire = 0.018;
+
+            const prime = base * tauxReglementaire * categorie * region;
+            return Math.round(prime * 100) / 100;
+        }
+
+        // ===== AFFICHAGE ET GESTION =====
+        function showResult(prime, branch, parameters) {
+            document.getElementById('prime-result').textContent = prime.toFixed(2) + ' UM';
+
+            const branchNames = {
+                'vie': 'Assurance Vie',
+                'non_vie': 'Assurance Non-Vie',
+                'obligatoire': 'Assurance Obligatoire'
+            };
+
+            let details = `Type: ${branchNames[branch]}`;
+
+            if (branch === 'vie') {
+                const capital = getSafeNumber(parameters.coverageAmount, 100000);
+                const duree = parameters.term || '20';
+                const type = parameters.coverageType === 'deces' ? 'Décès temporaire' :
+                            parameters.coverageType === 'vie_entiere' ? 'Vie entière' : 'Rente';
+                details += ` | ${type} | Capital: ${capital.toLocaleString()} UM | Durée: ${duree} ans`;
+            }
+            else if (branch === 'non_vie') {
+                const valeur = getSafeNumber(parameters.coverageAmount, 50000);
+                details += ` | Valeur: ${valeur.toLocaleString()} UM`;
+            }
+            else if (branch === 'obligatoire') {
+                const base = getSafeNumber(parameters.coverageAmount, 20000);
+                details += ` | Base: ${base.toLocaleString()} UM`;
+            }
+
+            document.getElementById('calculation-details').textContent = details;
+            document.getElementById('result-section').style.display = 'block';
+
+            // Stocker pour sauvegarde
+            currentResult = {
+                type: branchNames[branch],
+                parameters: parameters,
+                prime: prime,
+                branch: branch
+            };
+
+            document.getElementById('result-section').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        function saveCalculation() {
+            if (!currentResult) {
+                alert('Aucun calcul à sauvegarder');
+                return;
+            }
+
+            const saveBtn = event.target;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sauvegarde...';
+
+            fetch('/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: currentResult.type,
+                    parameters: currentResult.parameters
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                if (!data.success) {
+                    throw new Error('Erreur inconnue lors de la sauvegarde');
+                }
+
+                currentCalculationId = data.calculation_id;
+                currentResult.prime = data.prime;
+
+                document.getElementById('prime-result').textContent = data.prime.toFixed(2) + ' UM';
+
+                alert(`✅ Calcul sauvegardé avec succès!\n\n` +
+                      `Type: ${currentResult.type}\n` +
+                      `Montant: ${data.prime} UM\n` +
+                      `Référence: CAL-${data.calculation_id}`);
+            })
+            .catch(error => {
+                console.error('Erreur sauvegarde:', error);
+                alert('❌ Erreur lors de la sauvegarde: ' + error.message);
+            })
+            .finally(() => {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Sauvegarder';
+            });
+        }
+
+        function generatePDF() {
+            if (!currentResult) {
+                alert('Aucun calcul à exporter en PDF');
+                return;
+            }
+
+            if (currentCalculationId) {
+                window.open(`/generate_pdf/${currentCalculationId}`, '_blank');
+            } else {
+                alert('Veuillez d\'abord sauvegarder le calcul pour générer un PDF');
+            }
+        }
+
+        function resetCalculator() {
+            document.getElementById('result-section').style.display = 'none';
+            currentResult = null;
+            currentCalculationId = null;
+        }
+
+        function generateCurrentPDF() {
+            if (!currentResult) {
+                alert('Veuillez d\'abord effectuer un calcul avant de générer un PDF.');
+                return false;
+            }
+
+            if (!currentCalculationId) {
+                alert('Veuillez sauvegarder le calcul avant de générer un PDF.');
+                return false;
+            }
+
+            window.open(`/generate_pdf/${currentCalculationId}`, '_blank');
+            return false;
+        }
+
+        // Raccourci clavier
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                calculatePremium();
+            }
+        });
+    </script>
+</body>
+</html>
