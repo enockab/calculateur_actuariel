@@ -23,8 +23,8 @@ Application web développée avec **Python Flask** pour la simulation de primes 
 ### Installation
 ```bash
 # Cloner le repository
-git clone https://github.com/enockab/calculateur-actuariel.git
-cd calculateur-actuariel
+git clone https://github.com/enockab/calculateur_actuariel.git
+cd calculateur_actuariel
 
 # Installer les dépendances
 pip install -r requirements.txt
