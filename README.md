@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-2.3.3-green)](https://flask.palletsprojects.com/)
-[![License](https://img.shields.io/badge/Licence-MIT-yellow)](LICENSE)
+[![License](https://img.shields.io/badge/Licence-MIT-yellow)](LICENCE)
 
 Application web développée avec **Python Flask** pour la simulation de primes d'assurance basée sur des modèles actuariels.
 
